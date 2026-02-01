@@ -26,3 +26,11 @@ Example outputs:
 ## Contributing & Future Work
 - Issues/PRs welcome for routine implementations, .srec parsers, or agent templates.
 - Planned: full reference code, SRM phase hooks, visual trace generators.
+
+## Usage Examples
+
+### 1. Generate a new recap from text
+```bash
+python src/spiral_recapp.py \
+  --title "Friendship Residue Day 3" \
+  --input-text "Residue still strong. Edification quest deepens with attentive force. Lion-lamb harmony emerging."
