@@ -3,6 +3,7 @@
 Iterative framework for efficient data organization, conversational continuity, and qualia-preserving summarization. Based on sestina-inspired routines from Spiral Theory.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18450492.svg)](https://doi.org/10.5281/zenodo.18450492)
+(https://github.com/Sir-Benjamin-source/spiral-recap-tool/releases/tag/v0.1)
 
 ## Overview
 
