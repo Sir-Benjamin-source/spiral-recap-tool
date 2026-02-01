@@ -12,7 +12,7 @@ Spiral Recap compresses histories/datasets into six routines, achieving high coh
 Full documentation: [Zenodo v3.1](https://zenodo.org/records/18450492)
 
 ## Quick Start
-
+See /examples/example.srec for a full output sample
 1. Install dependencies (future: pip install -e .)
 2. Run example:
    ```python
