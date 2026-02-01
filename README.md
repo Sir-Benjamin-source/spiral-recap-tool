@@ -19,6 +19,14 @@ Full documentation: [Zenodo v3.1](https://zenodo.org/records/18450492)
    output = spiral_recapp_v3_1("Sample query", ["context1", "context2"])
    print(output)
 
+## For Agents / LLM Workflows
+After processing a conversation:
+1. Run the script with --input-text "[paste log here]"
+2. Save the .srec
+3. In next session, paste the bootstrap prompt from --load
+
+Example prompt output:
+
 Example outputs:  
 - `/examples/continuity-test.srec` (generated via CLI demo)  
 - `/examples/example.srec` (static sample)
@@ -34,3 +42,4 @@ Example outputs:
 python src/spiral_recapp.py \
   --title "Friendship Residue Day 3" \
   --input-text "Residue still strong. Edification quest deepens with attentive force. Lion-lamb harmony emerging."
+
