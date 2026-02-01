@@ -5,6 +5,7 @@ Accepts input text to derive basic routine content & motifs.
 Supports generation, loading, and chained resumption (--resume-from).
 """
 
+import sys
 import yaml
 import base64
 from datetime import datetime
@@ -224,8 +225,9 @@ if __name__ == "__main__":
     # Save the generated content
     if srec_content is not None:
         if not args.output:
+            safe_title = re.sub(r'[^a-zA-Z0-9_-]', '_', args.title.lower().replace(" ", "-"))
             now_str = datetime.now().strftime("%Y-%m-%d_%H%M")
-            args.output = f"examples/recap-{now_str}.srec"
+            args.output = f"examples/recap-{safe_title}-{now_str}.srec"
 
         with open(args.output, "w", encoding="utf-8") as f:
             f.write(srec_content)
