@@ -18,3 +18,7 @@ Full documentation: [Zenodo v3.1](https://zenodo.org/records/18450492)
    from src.spiral_recapp import spiral_recapp_v3_1
    output = spiral_recapp_v3_1("Sample query", ["context1", "context2"])
    print(output)
+
+## Contributing & Future Work
+- Issues/PRs welcome for routine implementations, .srec parsers, or agent templates.
+- Planned: full reference code, SRM phase hooks, visual trace generators.
