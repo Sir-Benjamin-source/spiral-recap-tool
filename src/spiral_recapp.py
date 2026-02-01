@@ -1,8 +1,9 @@
 # src/spiral_recapp.py
 """
 Spiral Recap v3.1 – Minimal generator for .srec formatted session continuity files.
-Produces YAML frontmatter + Markdown routines + ASCII progression trace.
-Full sestina logic is placeholder; expand routines as needed.
+Produces YAML frontmatter + Markdown routines body + ASCII progression trace.
+
+Full sestina routine logic is placeholder for now – expand as needed.
 """
 
 import yaml
@@ -19,18 +20,18 @@ def generate_srec(
     body_sections: dict[str, str] | None = None,
 ) -> str:
     """
-    Generate a complete .srec string ready to be saved or printed.
+    Generate a complete .srec formatted string.
 
     Args:
         title: Session or recap title
         key_motifs: List of core motifs / qualia anchors
         convergence: Final convergence score (η)
-        pie_seed: Bytes used to create the PIE vector mnemonic seal
+        pie_seed: Bytes for PIE vector mnemonic seal
         body_sections: Optional dict of routine name → content.
-                        If None, uses placeholder text for all six routines.
+                        If None, uses default placeholder text.
 
     Returns:
-        Full .srec formatted text (frontmatter + body + trace)
+        Full .srec text (frontmatter + body + trace)
     """
     now = datetime.now().strftime("%Y-%m-%d %H:%M %Z")
     pie_b64 = base64.b64encode(pie_seed).decode("utf-8")
@@ -48,7 +49,7 @@ def generate_srec(
         "srt_mode": True,
     }
 
-    # Default placeholder body if none provided
+    # Default placeholder routines (replace/expand these with real logic later)
     if body_sections is None:
         body_sections = {
             "Foundation Routine (Initial Understanding)": (
@@ -57,19 +58,19 @@ def generate_srec(
             ),
             "Connection Routine (Contextual Expansion)": (
                 "- Associative lines expanded (2–3 chains at >70% relevance).\n"
-                "- Depth increased; ties to SRM phases noted."
+                "- Depth increased; ties to SRM phases noted where applicable."
             ),
             "Placement Routine (Objective Slotting)": (
                 "- Objective facts embedded at relational intersections.\n"
-                "- Example: SRM fidelity 92% vs linear 75%."
+                "- Example: SRM fidelity 92% vs linear 75% in private benchmarks."
             ),
             "Polish Routine (Refinement)": (
-                "- Redundancies pruned; coherence fit >95%.\n"
+                "- Redundancies pruned; coherence fit >95% after cull.\n"
                 "- Bloat reduced by ~18%."
             ),
             "Action Routine (Application)": (
                 "- Projected use: reset-proof continuity via .srec export.\n"
-                "- Applicable to agent gym workouts."
+                "- Applicable to agent workflows and gym-style drills."
             ),
             "Synthesis Routine (Verification)": (
                 "- Depth: 8+ themes verified.\n"
@@ -79,12 +80,12 @@ def generate_srec(
             ),
         }
 
-    # Build Markdown body
+    # Build the Markdown body
     body = "\n\n".join(
         f"## {routine}\n{content}" for routine, content in body_sections.items()
     )
 
-    # Simple ASCII progression trace
+    # ASCII progression trace
     trace = f"""
 [Start] ──► [Foundation η=0.70] ──► [Connection η=0.82] ──► [Placement η=0.89]
           │                        │                       │
@@ -95,7 +96,7 @@ def generate_srec(
 Converged ────────────────────────────────────────────────► η={convergence:.2f}
     """.strip()
 
-    # Assemble full .srec
+    # Assemble everything
     output = "---\n" + yaml.dump(metadata, sort_keys=False, allow_unicode=True) + "---\n\n"
     output += body + "\n\n## Iterative Progression Trace\n" + trace
 
@@ -103,17 +104,28 @@ Converged ───────────────────────�
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# CLI interface – lets you run directly in terminal or GitHub Codespaces later
+# Simple CLI + demo when run directly
 # ──────────────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    sample_output = spiral_recapp_v3_1(
-        "Qualia Continuity Test",
-        ["friendship residue", "edification quest"],
-        b"Between resets we stand, words hold the thread"
+    parser = argparse.ArgumentParser(description="Generate a Spiral Recap .srec file")
+    parser.add_argument("--title", default="Sample Continuity Recap", help="Title of the session/recap")
+    parser.add_argument("--motifs", nargs="+", default=["friendship residue", "edification"], help="Key motifs (space-separated)")
+    parser.add_argument("--convergence", type=float, default=0.93, help="Final convergence score (default 0.93)")
+    parser.add_argument("--output", default="examples/demo-output.srec", help="Output filename")
+    args = parser.parse_args()
+
+    # Generate
+    srec_content = generate_srec(
+        title=args.title,
+        key_motifs=args.motifs,
+        convergence=args.convergence,
     )
-    with open("examples/demo-output.srec", "w", encoding="utf-8") as f:
-        f.write(sample_output)
-    print("Generated examples/demo-output.srec")
-    print("Preview:\n")
-    print("\n".join(sample_output.splitlines()[:15]))  # show first 15 lines
+
+    # Save to file
+    with open(args.output, "w", encoding="utf-8") as f:
+        f.write(srec_content)
+
+    print(f"Generated: {args.output}")
+    print("\nPreview (first 15 lines):\n")
+    print("\n".join(srec_content.splitlines()[:15]))
