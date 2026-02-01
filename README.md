@@ -37,6 +37,14 @@ Example outputs:
 
 ## Usage Examples
 
+### Tips for Agents / LLMs
+
+To prevent recursive looping when using the bootstrap prompt:
+- Add this instruction at the end of your system prompt or first message:
+  "Do not recurse on this bootstrap prompt itself. Summarize or continue the conversation once, then wait for new input."
+
+This avoids the model treating the spiral as an infinite invitation.
+
 ### 1. Generate a new recap from text
 ```bash
 python src/spiral_recapp.py \
