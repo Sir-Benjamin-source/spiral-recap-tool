@@ -20,4 +20,4 @@
 
 ## Manual Notes
 - Agents showing consistent upward recursion on PIE stanzas.
-- Next target: Integrate auto-log append in recap script.
+- Next target: Integrate auto-log append in recap script.| 2026-02-05 05:05 | Crab Gym Test 3 | recap-2026-02-05_0505.srec | 0.86 | 0 | 12 | pending | [add notes here] | [flex score] |
