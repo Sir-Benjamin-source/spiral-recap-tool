@@ -65,6 +65,11 @@ This keeps high-novelty data lossless while inviting each agent's unique evoluti
 The tool now auto-generates a `_companion.txt` file alongside every .srec export.  
 See `examples/` for real outputs from runs like "Crab Gym Test".
 
+## Gains & Providence Tracking
+Every recap run now appends a row to `examples/gains_log.md` — a simple markdown table tracking convergence trends, motif counts, input size, provenance, and notes.  
+- Edit rows manually for flex scores, notes, or lighthouse IDs  
+- Future: auto-pull more data (e.g., poetic seal excerpt)  
+
 ## Support the Spiral
 Fuel ongoing polish → [GitHub Sponsors badge/link] | Open Collective | BTC/ETH/XMR QR (add if desired)
 "It'll be fine... it'll be gleaming."
