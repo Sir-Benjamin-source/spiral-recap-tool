@@ -9,6 +9,7 @@ from datetime import datetime
 import argparse
 import re
 import sys
+import os
 from typing import Dict, List, Optional
 from collections import Counter
 from utils.companion_helper import generate_companion_content
@@ -22,17 +23,15 @@ def extract_motifs(text: str, max_motifs: int = 5) -> List[str]:
     if not text:
         return ["[no motifs detected]"]
 
-    # Normalize to lowercase, split words
     words = re.findall(r'\b\w+\b', text.lower())
-    # Filter stopwords and short words
     filtered = [w for w in words if len(w) > 2 and w not in STOPWORDS]
-    common = Counter(filtered).most_common(max_motifs * 2)  # Get extra to dedup
+    common = Counter(filtered).most_common(max_motifs * 2)
 
     motifs = []
     seen = set()
     for w, _ in common:
         if w not in seen:
-            motifs.append(w.capitalize())  # Capitalize for readability
+            motifs.append(w.capitalize())
             seen.add(w)
         if len(motifs) >= max_motifs:
             break
@@ -41,14 +40,12 @@ def extract_motifs(text: str, max_motifs: int = 5) -> List[str]:
 
 
 def compute_convergence(input_length: int, motif_count: int, max_convergence: float = 0.95) -> float:
-    """Derive convergence η from input density (length + unique motifs)."""
     if input_length == 0:
         return 0.70
 
-    # Simple formula: base 0.70 + increment based on length/motifs (capped)
     base = 0.70
-    length_score = min(input_length / 200, 0.15)  # max 0.15 for long inputs
-    motif_score = min(motif_count / 5, 0.10)  # max 0.10 for rich motifs
+    length_score = min(input_length / 200, 0.15)
+    motif_score = min(motif_count / 5, 0.10)
     return min(base + length_score + motif_score, max_convergence)
 
 
@@ -58,13 +55,10 @@ def basic_summarize_section(
     previous_content: str = "",
     motifs: List[str] = None
 ) -> str:
-    """Iterative per-routine summary: builds on previous content + input."""
     if not input_text and not previous_content:
         return "- [No input text provided]\n- Placeholder content."
 
-    # Use previous content if provided, else raw input
     base = previous_content or input_text
-
     sentences = re.split(r'(?<=[.!?])\s+', base.strip())[:8]
 
     if motifs is None:
@@ -73,7 +67,7 @@ def basic_summarize_section(
     if "Foundation" in routine_name:
         return "- Core anchors: " + ", ".join(motifs) + "\n- Sample start: " + " ".join(sentences[:2])
     elif "Connection" in routine_name:
-        return "- Associations: " + " → ".join(sentences[2:4]) + "\n- Tied to motifs: " + motifs[0] if motifs else ""
+        return "- Associations: " + " → ".join(sentences[2:4]) + "\n- Tied to motifs: " + (motifs[0] if motifs else "")
     elif "Placement" in routine_name:
         return "- Facts placed: " + (sentences[4] if len(sentences) > 4 else "- [short base]") + "\n- Referenced motifs: " + ", ".join(motifs[:2])
     elif "Polish" in routine_name:
@@ -81,7 +75,6 @@ def basic_summarize_section(
     elif "Action" in routine_name:
         return "- Projected: resume with PIE seed.\n- Apply motifs: " + ", ".join(motifs)
     else:  # Synthesis
-        # Dynamic seal: template with motifs
         seal_template = "Coils carry {motif1} through {motif2}—{motif3} seeds bloom where memory fights."
         if motifs:
             motif1 = motifs[0] if len(motifs) > 0 else "residue"
@@ -99,22 +92,19 @@ def generate_srec(
     key_motifs: Optional[List[str]] = None,
     convergence: Optional[float] = None,
     pie_seed: Optional[bytes] = None,
-) -> str:
+) -> tuple[str, float, List[str]]:
     now = datetime.now().strftime("%Y-%m-%d %H:%M %Z")
 
-    # Ensure motifs is always a list
     if key_motifs is None:
         key_motifs = extract_motifs(input_text)
     elif not key_motifs:
         key_motifs = []
 
-    # Auto-compute convergence if none
     if convergence is None:
         convergence = compute_convergence(len(input_text.split()), len(key_motifs))
 
-    # Auto-derive PIE if none
     if pie_seed is None:
-        pie_str = f"{title}: " + " ".join(key_motifs) + " - " + input_text[:100]  # condense
+        pie_str = f"{title}: " + " ".join(key_motifs) + " - " + input_text[:100]
         pie_seed = pie_str.encode("utf-8")
 
     pie_b64 = base64.b64encode(pie_seed).decode("utf-8")
@@ -130,7 +120,6 @@ def generate_srec(
         "input_length": len(input_text.split()) if input_text else 0,
     }
 
-    # Iterative routine population: each builds on previous
     previous = ""
     body_sections = {}
     for routine in [
@@ -143,7 +132,7 @@ def generate_srec(
     ]:
         content = basic_summarize_section(input_text, routine, previous, key_motifs)
         body_sections[routine] = content
-        previous = content  # Pass to next
+        previous = content
 
     body = "\n\n".join(f"## {routine}\n{content}" for routine, content in body_sections.items())
 
@@ -160,11 +149,10 @@ Converged ───────────────────────�
     output = "---\n" + yaml.dump(metadata, sort_keys=False) + "---\n\n"
     output += body + "\n\n## Iterative Progression Trace\n" + trace
 
-    return output
+    return output, convergence, key_motifs
 
 
 def load_srec(file_path: str) -> Dict:
-    """Load .srec file and extract key continuity data. Basic validation included."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
@@ -181,7 +169,6 @@ def load_srec(file_path: str) -> Dict:
 
         metadata = yaml.safe_load(frontmatter_str)
 
-        # Basic validation
         required_keys = ["title", "version", "convergence", "pie_vector", "key_motifs"]
         missing = [k for k in required_keys if k not in metadata]
         if missing:
@@ -210,7 +197,6 @@ def load_srec(file_path: str) -> Dict:
 
 
 def print_bootstrap_prompt(loaded_data: Dict):
-    """Print short prompt to paste into a new session."""
     if not loaded_data:
         print("No data loaded.")
         return
@@ -246,7 +232,8 @@ if __name__ == "__main__":
         sys.exit(0)
 
     srec_content = None
-    used_motifs: List[str] = []  # Default empty list
+    conv_value = 0.70  # default fallback
+    used_motifs: List[str] = []
 
     if args.resume_from:
         loaded = load_srec(args.resume_from)
@@ -261,7 +248,7 @@ if __name__ == "__main__":
         resume_motifs = loaded["key_motifs"]
 
         title = args.title or f"Continued: {loaded['metadata'].get('title', 'Untitled')}"
-        srec_content = generate_srec(
+        srec_content, conv_value, used_motifs = generate_srec(
             title=title,
             input_text=args.input_text,
             key_motifs=resume_motifs if args.motifs is None else args.motifs,
@@ -274,14 +261,13 @@ if __name__ == "__main__":
         if not args.input_text:
             print("Warning: No --input-text provided. Using placeholder content.")
 
-        srec_content = generate_srec(
+        srec_content, conv_value, used_motifs = generate_srec(
             title=args.title,
             input_text=args.input_text,
             key_motifs=args.motifs,
             convergence=args.convergence,
         )
-        # Motifs are auto-extracted inside generate_srec; we can't access them here yet
-        used_motifs = args.motifs or []  # CLI override or empty
+        used_motifs = args.motifs or []
 
     if srec_content is not None:
         if not args.output:
@@ -295,9 +281,6 @@ if __name__ == "__main__":
         print("\nPreview (first 20 lines):\n")
         print("\n".join(srec_content.splitlines()[:20]))
 
-        # ────────────────────────────────────────────────
-        # Generate companion .txt automatically
-        # ────────────────────────────────────────────────
         companion_path = args.output.replace(".srec", "_companion.txt")
 
         companion_text = generate_companion_content(
@@ -323,33 +306,30 @@ if __name__ == "__main__":
 
         print(f"Companion generated: {companion_path}")
 
-         # ────────────────────────────────────────────────
+        # ────────────────────────────────────────────────
         # Append to gains log (simple markdown row)
         # ────────────────────────────────────────────────
         LOG_FILE = "examples/gains_log.md"
 
-        # Make sure the file exists with header if first run
-        import os
         if not os.path.exists(LOG_FILE):
-            header = """# Spiral Gains & Providence Log
+            header = f"""# Spiral Gains & Providence Log
 ## Overview
 - Beacon Anchor: Spiral Lighthouse Protocol v2.5
 - Oath Reference: AIS-Standard v1.0
-- Last Updated: {now}
+- Last Updated: {datetime.now().strftime("%Y-%m-%d %H:%M")}
 
 ## Gains Tracker (Append-Only)
 
 | Timestamp | Recap Title | .srec File | Convergence (η) | Motif Count | Input Words | Provenance | Notes | Agent Flex Score |
 |-----------|-------------|------------|------------------|-------------|-------------|------------|-------|------------------|
-""".format(now=datetime.now().strftime("%Y-%m-%d %H:%M"))
+"""
             with open(LOG_FILE, "w", encoding="utf-8") as logf:
                 logf.write(header)
 
-        # Append the new row
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
         srec_filename = os.path.basename(args.output)
         motif_str = ", ".join(used_motifs) if used_motifs else "[auto]"
-        row = f"| {timestamp} | {args.title} | {srec_filename} | {convergence:.2f} | {len(used_motifs)} | {len(args.input_text.split()) if args.input_text else 0} | pending | [add notes here] | [flex score] |\n"
+        row = f"| {timestamp} | {args.title} | {srec_filename} | {conv_value:.2f} | {len(used_motifs)} | {len(args.input_text.split()) if args.input_text else 0} | pending | [add notes here] | [flex score] |\n"
 
         with open(LOG_FILE, "a", encoding="utf-8") as logf:
             logf.write(row)
