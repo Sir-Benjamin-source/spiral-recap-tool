@@ -1,4 +1,4 @@
-# Spiral Recap utility
+# Spiral Recap Utility
 
 Iterative framework for efficient data organization, conversational continuity, and qualia-preserving summarization. Based on sestina-inspired routines from Spiral Theory.
 
