@@ -347,10 +347,19 @@ if __name__ == "__main__":
         print(f"Companion generated: {companion_path}")
 
         # ────────────────────────────────────────────────
-        # Gains log append – use new basename
+        # Gains log append – use the new structured filename
         # ────────────────────────────────────────────────
-        LOG_FILE = "gains_log.md"  # repo root – global providence log
+        LOG_FILE = "gains_log.md"  # repo root – global
 
-        # ... (your existing header creation and row append logic, unchanged except:)
-        srec_filename = srec_filename  # now the structured one
-        # ... rest of gains_log code ...
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+        motif_str = ", ".join(used_motifs) if used_motifs else "[auto]"
+        input_words = len(args.input_text.split()) if args.input_text else 0
+        motif_count = len(used_motifs)
+
+        row = f"| {timestamp} | {args.title} | {srec_filename} | {conv_value:.2f} | {motif_count} | {input_words} | pending | [add notes here] | [flex score] |\n"
+
+        # Append row
+        with open(LOG_FILE, "a", encoding="utf-8") as logf:
+            logf.write(row)
+
+        print(f"Gains log updated: {LOG_FILE}")
