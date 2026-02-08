@@ -349,7 +349,7 @@ if __name__ == "__main__":
         # ────────────────────────────────────────────────
         # Gains log append – use new basename
         # ────────────────────────────────────────────────
-        LOG_FILE = os.path.join(base_output_dir, "gains_log.md")  # still root-level
+        LOG_FILE = "gains_log.md"  # repo root
 
         # ... (your existing header creation and row append logic, unchanged except:)
         srec_filename = srec_filename  # now the structured one
