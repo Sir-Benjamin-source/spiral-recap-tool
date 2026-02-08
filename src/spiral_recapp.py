@@ -2,7 +2,6 @@
 Spiral Recap v3.1 – Session continuity file generator (v0.3 – gap fixes)
 Derived convergence, PIE, motifs, iterative routines, dynamic seal.
 """
-
 import yaml
 import base64
 from datetime import datetime
@@ -12,6 +11,10 @@ import sys
 import os
 from typing import Dict, List, Optional
 from collections import Counter
+
+# Force repo root into sys.path (Codespace/VS Code quirk fix)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from utils.companion_helper import generate_companion_content
 
 # Simple stopwords for motif cleaning
