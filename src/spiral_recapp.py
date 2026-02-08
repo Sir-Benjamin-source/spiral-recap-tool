@@ -273,7 +273,7 @@ if __name__ == "__main__":
         )
         used_motifs = args.motifs or []
 
-        if srec_content is not None:
+    if srec_content is not None:
         # ────────────────────────────────────────────────
         # Structured filename & subdir logic
         # ────────────────────────────────────────────────
