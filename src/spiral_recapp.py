@@ -228,8 +228,13 @@ if __name__ == "__main__":
     parser.add_argument("--resume-from", help="Path to previous .srec to resume from (uses its PIE/motifs)")
     parser.add_argument('--category', type=str, default='Grok',
                     help='Category/AI prefix for filename and subdir (e.g., Grok, Claude)')
-    parser.add_argument('--base-dir', type=str, default='examples',
-                    help='Base output directory')
+    default_coil_home = os.path.join(os.path.expanduser("~"), ".spiral", "coils")
+    parser.add_argument(
+        "--base-dir",
+        type=str,
+        default=os.environ.get("SPIRAL_COIL_HOME", default_coil_home),
+        help="Base output directory (default: ~/.spiral/coils)",
+    )
     args = parser.parse_args()
 
     if args.load and not args.resume_from:
